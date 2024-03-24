@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <style>
+      .item1 {
+        grid-area: trade;
+      }
+      .item2 {
+        grid-area: menu;
+      }
+      .item3 {
+        grid-area: active;
+      }
+      .item4 {
+        grid-area: hand;
+      }
+      .item5 {
+        grid-area: discard;
+      }
+      .item6 {
+        grid-area: trash;
+      }
+      .item7 {
+        grid-area: locale;
+      }
+      .item8 {
+        grid-area: intent;
+      }
+      .item9 {
+        grid-area: draw;
+      }
+
+      .grid-container {
+        display: grid;
+        grid-template-areas:
+          "menu trade trade trade trade trade trade trash"
+          "intent locale active active active active active active"
+          "draw hand hand hand hand hand hand discard";
+        gap: 10px;
+        background-color: green;
+        padding: 10px;
+      }
+
+      .grid-container > div {
+        background-color: greenyellow;
+        text-align: center;
+        padding: 30px 0;
+        font-size: 30px;
+      }
+    </style>
+  </head>
+  <body>
+    <h1>Play Area</h1>
+
+    <p id="sample">Plop Plop Fizz Fizz</p>
+
+    <div class="grid-container">
+      <div class="item1">Trade Row</div>
+      <div class="item2">Menu</div>
+      <div class="item3">Active Play Area</div>
+      <div class="item4">Current Hand</div>
+      <div class="item5"><img src="discarddeck.jpg" /></div>
+      <div class="item6">
+        <img src="trashcan.jpg" />
+      </div>
+      <div class="item7">Locale</div>
+      <div class="item8"><img src="intentcard.jpg" /></div>
+      <div class="item9">
+        <img src="drawdeck.jpg" onclick="requestData()" />
+      </div>
+    </div>
+    <script>
+      var head = document.getElementById("heading");
+      var request = new XMLHttpRequest();
+      function requestData() {
+        request.onload = function () {
+          head.innerHTML = this.responseText;
+        };
+        request.open("GET", "samplething.txt", true);
+        request.send();
+      }
+
+      function drawCard() {
+        const xhttp = new XMLHttpRequest();
+        fluff = xhttp.onload = function () {
+          document.getElementById("sample").innerHTML = this.responseText;
+          alert("yay");
+        };
+        xhttp.open("POST", "samplething.txt", true);
+        xhttp.send(fluff);
+      }
+    </script>
+  </body>
+</html>
