@@ -1,93 +1,507 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
   <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <style>
-      .item1 {
-        grid-area: trade;
-      }
-      .item2 {
-        grid-area: menu;
-      }
-      .item3 {
-        grid-area: active;
-      }
-      .item4 {
-        grid-area: hand;
-      }
-      .item5 {
-        grid-area: discard;
-      }
-      .item6 {
-        grid-area: trash;
-      }
-      .item7 {
-        grid-area: locale;
-      }
-      .item8 {
-        grid-area: intent;
-      }
-      .item9 {
-        grid-area: draw;
-      }
 
-      .grid-container {
-        display: grid;
-        grid-template-areas:
-          "menu trade trade trade trade trade trade trash"
-          "intent locale active active active active active active"
-          "draw hand hand hand hand hand hand discard";
-        gap: 10px;
+      .matBox {
+        border-radius: 15px;
         background-color: green;
-        padding: 10px;
+        display: grid;
+        grid-template-columns:  240px, 1020px, 240px, 360px;
+        grid-template-rows: 240px, 20px, 240px, 20px, 240px, 20px;
+        text-align: center;
+        font-weight: bold;
       }
 
-      .grid-container > div {
+      .playBox {
+        border-radius: 15px;
         background-color: greenyellow;
-        text-align: center;
-        padding: 30px 0;
-        font-size: 30px;
+        width: 1000px;
+        height: 220px;
+        margin-left: 20px;
+        margin-top: 10px;
+        margin-bottom: 0px;
+        display: inline-flex;
+      }
+
+      .deckBox {
+        border-radius: 15px;
+        background-color: whitesmoke;
+        width: 140px;
+        height: 220px;
+        margin-left: 20px;
+        margin-top: 10px;
+        margin-bottom: 0px;
+      }
+
+      .statBox {
+        border-radius: 15px;
+        background-color: whitesmoke;
+        width: 140px;
+        
+        margin-left: 20px;
+        margin-top: 10px;
+        margin-bottom: 0px;
+      }
+
+      .card {
+        box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2);
+        transition: 0.3s;
+        width: 60px;
+        height: 220px;
+        border-radius: 15px;
+        margin: 5px;
+      }
+      .card:hover {
+        box-shadow: 0 8px 16px 0 rgba(0, 0, 0, 0.2);
+      }
+
+      .grayout {
+        filter: grayscale(100%);
+      }
+      .ungray {
+        filter: grayscale(0%);
       }
     </style>
   </head>
   <body>
-    <h1>Play Area</h1>
-
-    <p id="sample">Plop Plop Fizz Fizz</p>
-
-    <div class="grid-container">
-      <div class="item1">Trade Row</div>
-      <div class="item2">Menu</div>
-      <div class="item3">Active Play Area</div>
-      <div class="item4">Current Hand</div>
-      <div class="item5"><img src="discarddeck.jpg" /></div>
-      <div class="item6">
-        <img src="trashcan.jpg" />
+      <div id="statButt" style="position:absolute;top:5px; right:10px;z-index:5; display:block;">
+      <button onclick="toggleSheet('open')">Open</button>
       </div>
-      <div class="item7">Locale</div>
-      <div class="item8"><img src="intentcard.jpg" /></div>
-      <div class="item9">
-        <img src="drawdeck.jpg" onclick="requestData()" />
+      <div id="statSheet" style="position:absolute;top:5px; right:10px;z-index:5; display:none; width:65%; background-color:whitesmoke">
+        <input name="pcsheet" type="radio" value=0 onclick="changeSheet()">Sun</input>
+        <input name="pcsheet" type="radio" value=1 onclick="changeSheet()">War</input>
+        <input name="pcsheet" type="radio" value=2 checked="checked" onclick="changeSheet()">Law</input>
+        <h3 style="text-align:right;">Character Sheet</h3>
+        <p id="infoBox" style="
+        padding: 5px; overflow: scroll;"><img id="sheetimg" src="Law Smart sheet.jpg" /></p>
+        <button style="float:right;" onclick="toggleSheet('close')">Close</button>
+        </div>
+    <div class="matBox" id="mattBoxx">
+      <div class="deckBox" id="tradeDeck" style="grid-row: 1" draggable="true">
+        <p>Skill Deck</p>
       </div>
+      <div
+        class="playBox"
+        id="tradeArea"
+        style="grid-row: 1"
+        ondrop="drop(event, 'trade', trade)"
+        ondragover="allowDrop(event)"
+      >
+        <p>Skill Row</p>
+      </div>
+      <div class="deckBox" id="trashDeck" style="grid-row: 1">
+        <p>Trash</p>
+        <img
+          id="trashcan"
+          src="trashcan.jpg"
+          ondrop="drop(event, 'trash', trash)"
+          ondragover="allowDrop(event)"
+        />
+      </div>
+      <div style="grid-row: 2">
+        <button onclick="cycleDeck(trade, 'trade')">></button>
+      </div>
+      <div class="deckBox" id="intentArea" style="grid-row: 3" data-value="0" >
+        <p>Intent Card</p>
+      </div>
+      <div style="grid-row: 4">
+      <button onclick="cycleDeck(intent, 'intent')">></button>
     </div>
+      <div
+        class="playBox"
+        id="playArea"
+        style="grid-row: 3"
+        ondrop="drop(event, 'play', play)"
+        ondragover="allowDrop(event)"
+      >
+        <p>Play Area</p>
+      </div>
+      <div class="deckBox" id="resourceArea" style="grid-row: 3">
+        <p>Resource Deck</p>
+      </div>
+      
+      <div style="grid-row: 4">
+        <button onclick="moveMultiple('play', 'disc')">Discard All</button>
+      </div>
+      <div style="grid-row: 4">
+        <button onclick="cycleDeck(resource, 'resource')">></button>
+      </div>
+      <div
+        class="deckBox"
+        id="drawDeck"
+        style="grid-row: 5"
+        draggable="true"
+        ondrag="drag(event, 0, 'draw')"
+        ondragover="allowDrop(event)"
+        ondrop="drop(event, 'draw', deck)"
+      >
+        <p>Draw Deck</p>
+      </div>
+      <div
+        class="playBox"
+        id="handArea"
+        style="grid-row: 5"
+        ondrop="drop(event, 'hand', hand)"
+        ondragover="allowDrop(event)"
+      >
+
+        <p>Hand</p>
+      </div>
+      <div
+        class="deckBox"
+        id="discardArea"
+        style="grid-row: 5"
+        ondrop="drop(event, 'disc', discard)"
+        ondragover="allowDrop(event)"
+      >
+        <p>Discard Deck</p>
+      </div>
+      <div style="grid-row: 6; margin-right: 30px">
+        <button onclick="shuffleArray('main')">Shuffle</button>
+        <button onclick="moveMultiple('draw', 'hand')">Draw</button>
+        
+      </div>
+      <div style="grid-row: 6">
+        <button onclick="moveMultiple('hand', 'disc')">Discard All</button>
+      </div>
+      <div style="grid-row: 6">
+        <button onclick="shuffleArray('discard')">Shuffle</button>
+        <button onclick="cycleDeck(discard, 'discard')" value="0">></button>
+        
+      </div>
+
+      
+    </div>
+
     <script>
-      var head = document.getElementById("heading");
-      var request = new XMLHttpRequest();
-      function requestData() {
-        request.onload = function () {
-          head.innerHTML = this.responseText;
-        };
-        request.open("GET", "samplething.txt", true);
-        request.send();
+      let master = [
+        {
+          title: "SWIFT",
+          cardtext: "Move one tile, bypass Armor, increase Armor",
+          image: "shoeg",
+          used: "no",
+        },
+        {
+          title: "BRUTE",
+          cardtext: "Increase damage, Shove, Climb",
+          image: "bruteb",
+          used: "no",
+        },
+        {
+          title: "CHARM",
+          cardtext: "Goad, Intimidate, Bolster ally",
+          image: "bursty",
+          used: "no",
+        },
+        {
+          title: "SMART",
+          cardtext: "Search, Analyze, Hide, Recall",
+          image: "eyeo",
+          used: "no",
+        },
+        {
+          title: "Hide",
+          cardtext: "Hide behind cover",
+          image: "hoodp",
+          used: "no",
+        },
+        {
+          title: "WAR SHARD",
+          cardtext: "Conjure a Weapon and/or Shield & add active Hunger to Damage",
+          image: "line",
+          used: "no",
+        },
+        {
+          title: "Law Shard",
+          cardtext: "Learn enemies Hunger cards in their hand & add active Hunger to Search or Analyze actions",
+          image: "line",
+          used: "no",
+        },
+        {
+          title: "Sun Shard",
+          cardtext: "Ignore terrain when approaching an enemy & add active Hunger to Armor",
+          image: "line",
+          used: "no",
+        },
+        {
+          title: "Minor Shard",
+          cardtext: "This will likely have a benefit tied to the physical changes tied to the Shard",
+          image: "line",
+          used: "no",
+        },
+        {
+          title: "Hunger",
+          cardtext: "Persistent (counts against Hand/Play area limit). If discarded, add 1 Promise",
+          image: "line",
+          used: "no",
+        },
+        {
+          title: "Sword",
+          cardtext: "2 + Active Brute to Damage",
+          image: "swordr",
+          used: "no",
+        },
+        {
+          title: "Dagger",
+          cardtext: "Add Active Swift to damage",
+          image: "swordr",
+          used: "no",
+        },
+        {
+          title: "Shield",
+          cardtext: "+2 Armor",
+          image: "shieldb",
+          used: "no",
+        },
+        {
+          title: "Longbow",
+          cardtext: "1 dmg 2 tiles away or 2 dmg 1 tile away, requires 1 Brute to activate",
+          image: "line",
+          used: "no",
+        },
+      ];
+      var deck = [0, 1, 1, 2, 2, 3, 3, 3, 5, 6, 7, 7]
+      var discard = [];
+      var hand = [];
+      let trash = [];
+      var play = [];
+      let trade = [];
+      let intent = [0, 1, 2, 3];
+      let resource = [10, 11, 12, 13]
+      var activeCard = [];
+      var activePos = [];
+      
+
+
+
+      function changeSheet() {
+        imgId = document.getElementById("sheetimg");
+        radioName = document.getElementsByName("pcsheet");
+        radioVal = document.querySelector('input[name=pcsheet]:checked').value;
+        pooop = document.getElementById("sheetpoop");
+        pooop.innerText = radioVal;
+        if (radioVal == 2) {
+          imgId.src = "Law Smart sheet.jpg";
+          deck = [0, 1, 1, 2, 2, 3, 3, 3, 6, 8, 9, 9, 9];
+        }
+        else if (radioVal == 1) {
+          imgId.src = "War Brute sheet.jpg";
+          deck = [0, 0, 1, 1, 1, 2, 3, 3, 5, 8, 9, 9];
+        }
+        else if (radioVal == 0) {
+          imgId.src = "Sun Charm sheet.jpg";
+          deck = [0, 0, 1, 2, 2, 2, 3, 3, 7, 8, 9, 9];
+        }
+        shuffleArray("main");
       }
 
-      function drawCard() {
-        const xhttp = new XMLHttpRequest();
-        fluff = xhttp.onload = function () {
-          document.getElementById("sample").innerHTML = this.responseText;
-          alert("yay");
-        };
-        xhttp.open("POST", "samplething.txt", true);
-        xhttp.send(fluff);
+      function getInfo() {
+        di = document.getElementById("discardpoop");
+        if (discard == "") di.innerText = "empty";
+        else di.innerText = discard;
+        de = document.getElementById("deckpoop");
+        if (deck == "") de.innerText = "empty";
+        else de.innerText = deck;
+        ha = document.getElementById("handpoop");
+        if (hand == "") ha.innerText = "empty";
+        else ha.innerText = hand;
+      }
+
+      function toggleSheet(action) {
+        mat = document.getElementById("mattBoxx")
+        elem2 = document.getElementById("statButt");
+        elem = document.getElementById("statSheet");
+        if (action == "close") {
+        elem.style["display"] = "none";
+        elem2.style["display"] = "block";
+        mat.classList.remove("grayout")
+        }
+        else if (action == "open") {
+        elem.style["display"] = "block";
+        elem2.style["display"] = "none";
+        mat.classList.add("grayout");
+        }
+      }
+
+      function createDeck(ogArray) {
+        let newArray = [];
+        ogArray.forEach((card) => {
+        newCard = master[card];
+        newArray.push(newCard);
+        }
+        )
+        return newArray
+      }
+
+      function cycleDeck(array, areaId) {
+        newArray = [];
+        len = array.length 
+        areaFull = areaId + "Area";
+        area = document.getElementById(areaFull);
+        if (len == 0) {
+          area.innerHTML = "";
+          return
+        }
+        val = area.getAttribute('data-value');
+        cardPos = Number(val);
+        newVal = cardPos + 1;
+        if (newVal == len) newVal = 0;
+        area.setAttribute('data-value', newVal);
+        newCard = array[cardPos];
+        newArray.push(newCard);
+        displayHand(areaId, newArray);
+      }
+
+      function displayHand(area, dArray) {
+        areaId = area + "Area";
+        newArray = createDeck(dArray);
+        cardList = newArray;
+        const handElement = document.getElementById(areaId);
+        handElement.innerHTML = "";
+        cardList.forEach((card) => {
+          let cardPos = Number(cardList.indexOf(card));
+          const cardElement1 = document.createElement("div");
+          cardElement1.className = "column";
+          const cardElement2 = document.createElement("div");
+          cardElement2.className = "card";
+          cardElement2.style["width"] = "150px";
+          cardElement2.style["background-color"] = "white";
+          const cardElement3 = document.createElement("div");
+          cardElement3.className = "container";
+          cardElement3.innerText = card.title;
+          cardElement3.style["text-transform"] = "uppercase";
+          cardElement3.style["font-weight"] = "bold";
+          cardElement3.style["text-align"] = "center";
+          cardElement3.style["padding"] = "5px";
+          const cardElement4 = document.createElement("img");
+          cardElement4.className = "container";
+          cardElement4.id = "id" + cardPos;
+          cardElement4.src = card.image + ".jpg";
+          cardElement4.style["width"] = "120px";
+          cardElement4.draggable = "true";
+          cardElement4.addEventListener("dragstart", function () {
+            drag(event, cardPos, area);
+          });
+          cardElement4.addEventListener("click", function () {
+            if (card.used == "no") {
+              cardElement4.classList.add("grayout");
+              card.used = "yes";
+            } else if (card.used == "yes") {
+              cardElement4.classList.remove("grayout");
+              card.used = "no";
+            }
+          });
+          const cardElement5 = document.createElement("div");
+          cardElement5.className = "container";
+          cardElement5.innerText = card.cardtext;
+          cardElement5.style["padding"] = "10px";
+          cardElement2.appendChild(cardElement3);
+          cardElement2.appendChild(cardElement4);
+          cardElement2.appendChild(cardElement5);
+          cardElement1.appendChild(cardElement2);
+          handElement.appendChild(cardElement1);
+        });
+      }
+
+      function shuffleArray(array) {
+        if (array == "main") {
+          let unshuffled = deck;
+          deck = unshuffled
+            .map((value) => ({ value, sort: Math.random() }))
+            .sort((a, b) => a.sort - b.sort)
+            .map(({ value }) => value);
+            getInfo();
+        } else if (array == "discard") {
+          let unshuffled = deck.concat(discard);
+          deck = unshuffled
+            .map((value) => ({ value, sort: Math.random() }))
+            .sort((a, b) => a.sort - b.sort)
+            .map(({ value }) => value);
+          discard = [];
+          poop = document.getElementById('discardArea')
+          getInfo();
+        }
+      }
+
+
+      function moveMultiple(sourceId, destId) {
+        destArray = getSource(destId);
+        sourceArray = getSource(sourceId);
+        len = sourceArray.length;
+        if (sourceId == 'draw' && len < 5) {
+            alert("You must shuffle the discard pile to draw a full hand");
+            return;
+          }
+        else {
+            if (sourceId == "draw") {
+              newNum = 5;
+              for (i=0; i < newNum; i++) {
+            drag(event, 0, sourceId);
+            drop(event, destId, destArray);
+              }
+            }
+            else {
+            len2 = sourceArray.length;  
+            for (i=0; i < len2; i++) {
+            drag(event, 0, sourceId);
+            drop(event, destId, destArray);
+            }
+            }
+          }
+        }
+
+
+      function moveCard(dest, source) {
+        sourcePos = activePos[0];
+        movedCard = source[sourcePos];
+        dest.push(movedCard);
+        source.splice(sourcePos, 1);
+        displayHand("hand", hand);
+        displayHand("play", play);
+        displayHand("trade", trade);
+      }
+
+      function allowDrop(ev) {
+        ev.preventDefault();
+      }
+
+      function drag(ev, cardPos, source1) {
+        let poop = document.getElementById("deckpoop");
+        activePos.push(cardPos);
+        activeCard.push(source1);
+        
+      }
+
+      function drop(ev, dest, array) {
+        ev.preventDefault();
+        source = activeCard[0];
+        position = activePos[0];
+        sourceArray = getSource(source);
+        len = sourceArray.length;
+        if (sourceArray == deck && len == 0) {
+          alert("The deck is empty")
+          activeCard = [];
+          activePos = [];
+          return
+        }
+        else {
+        moveCard(array, sourceArray);
+        activeCard = [];
+        activePos = [];
+        getInfo();
+        }
+      }
+
+      function getSource(fluff) {
+        if (fluff == "draw") return deck;
+        else if (fluff == "hand") return hand;
+        else if (fluff == "trash") return trash;
+        else if (fluff == "disc") return discard;
+        else if (fluff == "trade") return trade;
+        else if (fluff == "play") return play;
       }
     </script>
   </body>
