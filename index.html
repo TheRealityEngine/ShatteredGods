@@ -36,6 +36,16 @@
         margin-bottom: 0px;
       }
 
+      .emptyBox {
+        border-radius: 15px;
+        background-color: greenyellow;
+        width: 140px;
+        height: 220px;
+        margin-left: 20px;
+        margin-top: 10px;
+        margin-bottom: 0px;
+      }
+
       .statBox {
         border-radius: 15px;
         background-color: whitesmoke;
@@ -80,14 +90,14 @@
         <button style="float:right;" onclick="toggleSheet('close')">Close</button>
         </div>
     <div class="matBox" id="mattBoxx">
-      <div class="deckBox" id="tradeDeck" style="grid-row: 1" draggable="true">
+      <div class="deckBox" id="tradedDeck" style="grid-row: 1" draggable="true" ondrag="drag(event, 0, 'traded')">
         <p>Skill Deck</p>
       </div>
       <div
         class="playBox"
-        id="tradeArea"
+        id="traderArea"
         style="grid-row: 1"
-        ondrop="drop(event, 'trade', trade)"
+        ondrop="drop(event, 'trader', trader)"
         ondragover="allowDrop(event)"
       >
         <p>Skill Row</p>
@@ -102,7 +112,7 @@
         />
       </div>
       <div style="grid-row: 2">
-        <button onclick="cycleDeck(trade, 'trade')">></button>
+        <button onclick="moveMultiple('traded', 'trader')">Draw</button>
       </div>
       <div class="deckBox" id="intentArea" style="grid-row: 3" data-value="0" >
         <p>Intent Card</p>
@@ -139,6 +149,7 @@
         ondrop="drop(event, 'draw', deck)"
       >
         <p>Draw Deck</p>
+        <p id="emptypoop" style="color:red; font-size:18px; display:none"><br /><br />EMPTY</p>
       </div>
       <div
         class="playBox"
@@ -151,7 +162,7 @@
         <p>Hand</p>
       </div>
       <div
-        class="deckBox"
+        class="emptyBox"
         id="discardArea"
         style="grid-row: 5"
         ondrop="drop(event, 'disc', discard)"
@@ -176,20 +187,20 @@
       
     </div>
     <p>
-      
+      <b>Deck</b
     </p>
     <div id="deckpoop">
       <!-- Cards will be displayed here -->
     </div>
     <p>
-      
+      <b>Discard</b>
     </p>
     <div id="discardpoop"></div>
     <p>
-      
+      <b>Hand</b>
     </p>
-    <div id="handpoop"></div>
-    <div id="sheetpoop"></div>
+    <div id="handpoop">ANYTHING?</div>
+    <div id="sheetpoop">ANYTHING? at all?</div>
     <script>
       let master = [
         {
@@ -276,20 +287,70 @@
           image: "line",
           used: "no",
         },
+        {
+          title: "Intimidating Stance",
+          cardtext: "Cost: 1 Charm + 1 Brute. While in play, can use Brute or Charm for Intimidation",
+          image: "line",
+          used: "no",
+        },
+        {
+          title: "Spot an Opening",
+          cardtext: "Cost: 1 Swift + 1 Smart. Ignore Armor on this attack",
+          image: "line",
+          used: "no",
+        },
+        {
+          title: "All Out Sprint",
+          cardtext: "Cost: 2 swift. Move anywhere on the map, lose all armor.",
+          image: "line",
+          used: "no",
+        },
+        {
+          title: "All Out Attack",
+          cardtext: "Cost: 2 Brute. Ignore all armor, lose all armor.",
+          image: "line",
+          used: "no",
+        },
+        {
+          title: "Divine Burst",
+          cardtext: "Cost: 2 Hunger. Do Active Hunger in dmg to all in your tile.",
+          image: "line",
+          used: "no",
+        },
+        {
+          title: "Angrify",
+          cardtext: "Cost 2 Charm. Enemy focuses only on you until the next round.",
+          image: "line",
+          used: "no",
+        },
+        {
+          title: "Silver Tongued",
+          cardtext: "Cost 2 Charm. Improve normal target's opinion by 1 if not Aggressive OR Convince a friendly target to do 1 simple action",
+          image: "line",
+          used: "no",
+        },
+        {
+          title: "Minor Improvisation",
+          cardtext: "Cost 2 Smart. Draw 1 Card, then Discard 1 Card.",
+          image: "line",
+          used: "no",
+        },
       ];
       var deck = [0, 1, 1, 2, 2, 3, 3, 3, 5, 6, 7, 7]
       var discard = [];
       var hand = [];
       let trash = [];
       var play = [];
-      let trade = [];
+      let traded = [14, 15, 16, 17, 18, 19, 20];
+      let trader = [];
       let intent = [0, 1, 2, 3];
       let resource = [10, 11, 12, 13]
       var activeCard = [];
       var activePos = [];
       
-
-
+      window.addEventListener("click", getInfo())
+   
+     
 
 
       function changeSheet() {
@@ -311,6 +372,14 @@
           deck = [0, 0, 1, 2, 2, 2, 3, 3, 7, 8, 9, 9];
         }
         shuffleArray("main");
+      }
+
+
+      function emptyDeck(boop) {
+        idName = boop + "Deck";
+        fullEmpty = document.getElementById(idName);
+        fullEmpty.setAttribute("class", "emptyBox");
+        return
       }
 
       function getInfo() {
@@ -352,7 +421,7 @@
       }
 
       function cycleDeck(array, areaId) {
-        newArray = [];
+        cycleArray = [];
         len = array.length 
         areaFull = areaId + "Area";
         area = document.getElementById(areaFull);
@@ -366,8 +435,8 @@
         if (newVal == len) newVal = 0;
         area.setAttribute('data-value', newVal);
         newCard = array[cardPos];
-        newArray.push(newCard);
-        displayHand(areaId, newArray);
+        cycleArray.push(newCard);
+        displayHand(areaId, cycleArray);
       }
 
       function displayHand(area, dArray) {
@@ -396,8 +465,8 @@
           cardElement4.id = "id" + cardPos;
           cardElement4.src = card.image + ".jpg";
           cardElement4.style["width"] = "120px";
-          cardElement4.draggable = "true";
-          cardElement4.addEventListener("dragstart", function () {
+          cardElement2.draggable = "true";
+          cardElement2.addEventListener("dragstart", function () {
             drag(event, cardPos, area);
           });
           cardElement4.addEventListener("click", function () {
@@ -437,6 +506,8 @@
             .map(({ value }) => value);
           discard = [];
           poop = document.getElementById('discardArea')
+          fullEmpty = document.getElementById("drawDeck");
+          fullEmpty.setAttribute("class", "deckBox");
           getInfo();
         }
       }
@@ -445,14 +516,18 @@
       function moveMultiple(sourceId, destId) {
         destArray = getSource(destId);
         sourceArray = getSource(sourceId);
+        emp = document.getElementById("emptypoop");
         len = sourceArray.length;
-        if (sourceId == 'draw' && len < 5) {
-            alert("You must shuffle the discard pile to draw a full hand");
-            return;
-          }
-        else {
-            if (sourceId == "draw") {
-              newNum = 5;
+        lenD = destArray.length;
+
+            if (sourceId == "draw" || sourceId == "traded") {
+              rawNum = 5 - lenD;
+              if (rawNum > len) {
+                newNum = len;
+                emptyDeck(sourceId);
+              }
+              else newNum = rawNum;
+
               for (i=0; i < newNum; i++) {
             drag(event, 0, sourceId);
             drop(event, destId, destArray);
@@ -465,7 +540,7 @@
             drop(event, destId, destArray);
             }
             }
-          }
+          
         }
 
 
@@ -476,7 +551,16 @@
         source.splice(sourcePos, 1);
         displayHand("hand", hand);
         displayHand("play", play);
-        displayHand("trade", trade);
+        displayHand("trader", trader);
+        if (discard.length == 0) {
+          let elem = document.getElementById("discardArea");
+          elem.setAttribute("class", "emptyBox");
+        }
+        else if (discard.length > 0) {
+          let elem = document.getElementById("discardArea");
+          elem.setAttribute("class", "deckBox");
+        }
+
       }
 
       function allowDrop(ev) {
@@ -484,10 +568,13 @@
       }
 
       function drag(ev, cardPos, source1) {
+        if (source1 == "intent" || source1 == "resource") alert("I'm sorry Dave. I'm afraid I can't do that.");
+        else {
         let poop = document.getElementById("deckpoop");
+        let len = deck.length;
         activePos.push(cardPos);
         activeCard.push(source1);
-        
+        }
       }
 
       function drop(ev, dest, array) {
@@ -496,8 +583,9 @@
         position = activePos[0];
         sourceArray = getSource(source);
         len = sourceArray.length;
-        if (sourceArray == deck && len == 0) {
-          alert("The deck is empty")
+        
+        if (sourceArray == deck && len == 0 || sourceArray == traded && len == 0) {
+          alert("The deck is empty");
           activeCard = [];
           activePos = [];
           return
@@ -515,7 +603,8 @@
         else if (fluff == "hand") return hand;
         else if (fluff == "trash") return trash;
         else if (fluff == "disc") return discard;
-        else if (fluff == "trade") return trade;
+        else if (fluff == "trader") return trader;
+        else if (fluff == "traded") return traded;
         else if (fluff == "play") return play;
       }
     </script>
