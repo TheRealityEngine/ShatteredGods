@@ -357,7 +357,21 @@
 
       
     </div>
-    
+    <p>
+      <b>Deck</b
+    </p>
+    <div id="deckpoop">
+      <!-- Cards will be displayed here -->
+    </div>
+    <p>
+      <b>Discard</b>
+    </p>
+    <div id="discardpoop"></div>
+    <p>
+      <b>Hand</b>
+    </p>
+    <div id="handpoop">ANYTHING?</div>
+    <div id="sheetpoop">ANYTHING? at all?</div>
     <script>
       let master = [
         {
@@ -557,7 +571,7 @@
       var filled =
         "circle-filled.jpg";
       stats = ["bru", "swi", "sma", "cha", "bod", "min", "hun"]
-      
+      window.addEventListener("click", getInfo())
    
       window.onload = function () {
         loadThings()
@@ -798,7 +812,7 @@
             .map((value) => ({ value, sort: Math.random() }))
             .sort((a, b) => a.sort - b.sort)
             .map(({ value }) => value);
-            
+            getInfo();
         } else if (array == "discard") {
           let unshuffled = deck.concat(discard);
           deck = unshuffled
@@ -810,7 +824,7 @@
           poop.setAttribute("class", "emptyBox");
           fullEmpty = document.getElementById("drawDeck");
           fullEmpty.setAttribute("class", "deckBox");
-          
+          getInfo();
         }
       }
 
@@ -904,7 +918,7 @@
         moveCard(array, sourceArray);
         activeCard = [];
         activePos = [];
-        
+        getInfo();
         }
       }
 
